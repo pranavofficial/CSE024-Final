@@ -100,26 +100,34 @@ void Canvas::deleteSelected() {
 
 void Canvas::bringSelectedToFront() {
     if (selectedShape && shapes.size() > 1) {
-        for (auto it = shapes.begin(); it != shapes.end(); ++it) {
-            if (*it == selectedShape) {
-                // Move to end (top) of container
-                shapes.push_back(selectedShape);
-                shapes.erase(it);
-                break;
-            }
+        // Find the selected shape
+        auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
+        if (it != shapes.end()) {
+            // Save a copy of the shared_ptr
+            auto shape = *it;
+            
+            // Remove it from its current position
+            shapes.erase(it);
+            
+            // Add it to the end (top) of the container
+            shapes.push_back(shape);
         }
     }
 }
 
 void Canvas::sendSelectedToBack() {
     if (selectedShape && shapes.size() > 1) {
-        for (auto it = shapes.begin(); it != shapes.end(); ++it) {
-            if (*it == selectedShape) {
-                // Move to front (bottom) of container
-                shapes.insert(shapes.begin(), selectedShape);
-                shapes.erase(it + 1);  // +1 since we inserted at beginning
-                break;
-            }
+        // Find the selected shape
+        auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
+        if (it != shapes.end()) {
+            // Save a copy of the shared_ptr
+            auto shape = *it;
+            
+            // Remove it from its current position
+            shapes.erase(it);
+            
+            // Add it to the beginning (bottom) of the container
+            shapes.insert(shapes.begin(), shape);
         }
     }
 }

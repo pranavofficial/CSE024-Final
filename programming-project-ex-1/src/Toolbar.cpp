@@ -98,11 +98,13 @@ void Toolbar::onClick(Widget* sender) {
     }
     else if (sender == bringToFrontButton) {
         currentAction = Action::BRING_TO_FRONT;
-        bringToFrontButton->color(FL_WHITE);
+        // Don't color this button as selected (it's a one-time action)
+        cerr << "Bring to front clicked" << endl;
     }
     else if (sender == sendToBackButton) {
         currentAction = Action::SEND_TO_BACK;
-        sendToBackButton->color(FL_WHITE);
+        // Don't color this button as selected (it's a one-time action)
+        cerr << "Send to back clicked" << endl;
     }
     
     redraw(); // Redraw to show changes
@@ -132,11 +134,8 @@ Action Toolbar::getAction() const {
 
 void Toolbar::resetAction() {
     if (currentAction != Action::NONE) {
+        cerr << "Resetting toolbar action" << endl;
         currentAction = Action::NONE;
-        deselectAllTools();
-        
-        // Re-highlight the current tool button
-        visualizeSelectedTool();
     }
 }
 

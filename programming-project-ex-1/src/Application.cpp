@@ -112,19 +112,37 @@ void Application::onToolbarChange(Widget* sender) {
     Action action = toolbar->getAction();
     
     if (action == Action::BRING_TO_FRONT) {
+        // Handle bring to front action
         canvas->bringSelectedToFront();
         canvas->redraw();
+        
+        // Reset the action so it doesn't keep firing
         toolbar->resetAction();
+        
+        // Log feedback
+        cerr << "Bringing selected shape to front" << endl;
     }
     else if (action == Action::SEND_TO_BACK) {
+        // Handle send to back action
         canvas->sendSelectedToBack();
         canvas->redraw();
+        
+        // Reset the action so it doesn't keep firing
         toolbar->resetAction();
+        
+        // Log feedback
+        cerr << "Sending selected shape to back" << endl;
     }
     else if (toolbar->getTool() == ToolType::CLEAR) {
         canvas->clear();
         canvas->redraw();
+        
+        // Log feedback
+        cerr << "Clearing canvas" << endl;
     }
+    
+    // Regardless of which tool was selected, redraw the UI
+    toolbar->redraw();
 }
 
 void Application::onColorPickerChange(Widget* sender) {
@@ -137,10 +155,16 @@ Application::Application() {
     // Set up window layout
     window = new Window(100, 100, 800, 600, "Paint Application");
     
+    // Calculate dimensions
+    int toolbarWidth = 100;
+    int colorPickerWidth = 150;
+    int canvasWidth = 800 - toolbarWidth - colorPickerWidth;
+    int canvasHeight = 600;
+    
     // Create components with layout
-    toolbar = new Toolbar(0, 0, 100, 600);
-    canvas = new Canvas(100, 0, 500, 500);
-    colorPicker = new ColorPicker(100, 500, 500, 100);
+    toolbar = new Toolbar(0, 0, toolbarWidth, canvasHeight);
+    canvas = new Canvas(toolbarWidth, 0, canvasWidth, canvasHeight);
+    colorPicker = new ColorPicker(toolbarWidth + canvasWidth, 0, colorPickerWidth, canvasHeight);
     
     // Add components to window
     window->add(toolbar);
