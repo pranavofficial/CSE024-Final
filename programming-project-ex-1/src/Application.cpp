@@ -133,15 +133,7 @@ void Application::onToolbarChange(Widget* sender) {
         // Log feedback
         cerr << "Sending selected shape to back" << endl;
     }
-    else if (toolbar->getTool() == ToolType::CLEAR) {
-        canvas->clear();
-        canvas->redraw();
-        
-        // Log feedback
-        cerr << "Clearing canvas" << endl;
-    }
     
-    // Regardless of which tool was selected, redraw the UI
     toolbar->redraw();
 }
 
