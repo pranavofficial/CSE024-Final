@@ -1,4 +1,4 @@
-#include "Application.h" // Test
+#include "Application.h"
 
 using namespace bobcat;
 using namespace std;
@@ -161,10 +161,18 @@ Application::Application() {
     int canvasWidth = 800 - toolbarWidth - colorPickerWidth;
     int canvasHeight = 600;
     
-    // Create components with layout
-    toolbar = new Toolbar(0, 0, toolbarWidth, canvasHeight);
+    // After creating toolbar and canvas, and before window->show():
+    window->begin();
     canvas = new Canvas(toolbarWidth, 0, canvasWidth, canvasHeight);
+
+    toolbar = new Toolbar(0, 0, toolbarWidth, canvasHeight, canvas);
+    
+    // Position the colorPicker flush to the right edge
     colorPicker = new ColorPicker(toolbarWidth + canvasWidth, 0, colorPickerWidth, canvasHeight);
+    colorPicker = new ColorPicker(0, 0, colorPickerWidth, canvasHeight);
+    window->end();
+    window->resizable(canvas);  // if you want the canvas to stretch on resize
+    window->show();
     
     // Add components to window
     window->add(toolbar);
