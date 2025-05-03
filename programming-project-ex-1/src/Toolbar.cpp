@@ -74,8 +74,17 @@ void Toolbar::onClick(Widget* sender) {
         eraserButton->color(FL_WHITE);
     }
     else if (sender == clearButton) {
+        // Directly Clear Canvas Here
+        if(canvas)
+        {
+            canvas->clear();
+            canvas->render(); // Force UI Refresh
+
+        }
+
         currentTool = ToolType::CLEAR;
         clearButton->color(FL_WHITE);
+        cerr << "Clear clicked" << endl;
     }
     else if (sender == selectorButton) {
         currentTool = ToolType::SELECTOR;
