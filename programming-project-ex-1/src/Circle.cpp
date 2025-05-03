@@ -1,56 +1,146 @@
-#include "Circle.h"
+#include "Canvas.h"
 #include <GL/freeglut.h>
-#include <cmath>
+#include <algorithm> 
 
-Circle::Circle(float x, float y, float radius, const Color& color)
-    : Shape(x, y, color), radius(radius) {
+Canvas::Canvas(int x, int y, int w, int h) 
+    : Canvas_(x, y, w, h), 
+      selectedShape(nullptr), 
+      currentScribble(nullptr),
+      isDragging(false),
+      lastMouseX(0.0f),
+      lastMouseY(0.0f) {
 }
 
-void Circle::draw() const {
-    // Draw the circle
-    glColor3f(color.getR(), color.getG(), color.getB());
-    
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex2f(x, y); // Center
-    
-    const int segments = 32;
-    for (int i = 0; i <= segments; i++) {
-        float angle = 2.0f * M_PI * i / segments;
-        float px = x + radius * cos(angle);
-        float py = y + radius * sin(angle);
-        glVertex2f(px, py);
+void Canvas::startScribble(float x, float y, const Color& color, int strokeSize) {
+    currentScribble = std::make_shared<Scribble>(x, y, color, strokeSize);
+    shapes.push_back(currentScribble);
+}
+
+void Canvas::addPointToScribble(float x, float y) {
+    if (currentScribble) {
+        currentScribble->addPoint(x, y);
     }
-    glEnd();
+}
+
+void Canvas::endScribble() {
+    currentScribble = nullptr;
+}
+
+void Canvas::addRectangle(float x, float y, float width, float height, const Color& color) {
+    auto rectangle = std::make_shared<Rectangle>(x, y, width, height, color);
+    shapes.push_back(rectangle);
+}
+
+void Canvas::addCircle(float x, float y, float radius, const Color& color) {
+    auto circle = std::make_shared<Circle>(x, y, radius, color);
+    shapes.push_back(circle);
+}
+
+void Canvas::addTriangle(float x, float y, float width, float height, const Color& color) {
+    auto triangle = std::make_shared<Triangle>(x, y, width, height, color);
+    shapes.push_back(triangle);
+}
+
+void Canvas::addLine(float x1, float y1, float x2, float y2, const Color& color) {
+    auto line = std::make_shared<Line>(x1, y1, x2, y2, color);
+    shapes.push_back(line);
+}
+
+bool Canvas::selectShapeAt(float x, float y) {
+    // Clear any previous selection
+    clearSelection();
     
-    // Draw selection indicator if selected
-    if (selected) {
-        glLineWidth(1.0f);
-        glColor3f(1.0f, 0.5f, 0.0f); // Orange selection color
-        
-        glBegin(GL_LINE_LOOP);
-        for (int i = 0; i < segments; i++) {
-            float angle = 2.0f * M_PI * i / segments;
-            float px = x + (radius + 0.01f) * cos(angle);
-            float py = y + (radius + 0.01f) * sin(angle);
-            glVertex2f(px, py);
+    // Check shapes in reverse order (top to bottom) for selection
+    for (auto it = shapes.rbegin(); it != shapes.rend(); ++it) {
+        if ((*it)->contains(x, y)) {
+            selectedShape = *it;
+            selectedShape->setSelected(true);
+            return true;
         }
-        glEnd();
+    }
+    
+    return false;
+}
+
+void Canvas::clearSelection() {
+    if (selectedShape) {
+        selectedShape->setSelected(false);
+        selectedShape = nullptr;
     }
 }
 
-bool Circle::contains(float px, float py) const {
-    float distance = sqrt(pow(px - x, 2) + pow(py - y, 2));
-    return distance <= radius;
+void Canvas::moveSelected(float dx, float dy) {
+    if (selectedShape) {
+        selectedShape->move(dx, dy);
+    }
 }
 
-void Circle::resize(float factor) {
-    radius *= factor;
+void Canvas::resizeSelected(float factor) {
+    if (selectedShape) {
+        selectedShape->resize(factor);
+    }
 }
 
-float Circle::getRadius() const {
-    return radius;
+void Canvas::changeSelectedColor(const Color& color) {
+    if (selectedShape) {
+        selectedShape->setColor(color);
+    }
 }
 
-void Circle::setRadius(float newRadius) {
-    radius = newRadius;
+void Canvas::deleteSelected() {
+    if (selectedShape) {
+        for (auto it = shapes.begin(); it != shapes.end(); ++it) {
+            if (*it == selectedShape) {
+                shapes.erase(it);
+                selectedShape = nullptr;
+                break;
+            }
+        }
+    }
+}
+
+void Canvas::bringSelectedToFront() {
+    if (selectedShape && !shapes.empty()) {
+        // Find the selected shape
+        auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
+        if (it != shapes.end()) {
+            // Save a copy of the shared_ptr
+            auto shape = *it;
+            
+            // Remove it from its current position
+            shapes.erase(it);
+            
+            // Add it to the end (top) of the container
+            shapes.push_back(shape);
+        }
+    }
+}
+
+void Canvas::sendSelectedToBack() {
+    if (selectedShape && !shapes.empty()) {
+        // Find the selected shape
+        auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
+        if (it != shapes.end()) {
+            // Save a copy of the shared_ptr
+            auto shape = *it;
+            
+            // Remove it from its current position
+            shapes.erase(it);
+            
+            // Add it to the beginning (bottom) of the container
+            shapes.insert(shapes.begin(), shape);
+        }
+    }
+}
+
+void Canvas::clear() {
+    shapes.clear();
+    selectedShape = nullptr;
+    currentScribble = nullptr;
+}
+
+void Canvas::render() {
+    for (const auto& shape : shapes) {
+        shape->draw();
+    }
 } 
