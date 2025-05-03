@@ -1,9 +1,10 @@
 #include "Toolbar.h"
+#include "Canvas.h"
 
 using namespace bobcat;
 using namespace std;
 
-Toolbar::Toolbar(int x, int y, int w, int h) : Group(x, y, w, h) {
+Toolbar::Toolbar(int x, int y, int w, int h, Canvas* canvas) : Group(x, y, w, h), canvas(canvas) {
     int buttonHeight = h / 10;
     
     // Create tool buttons
@@ -97,12 +98,22 @@ void Toolbar::onClick(Widget* sender) {
         lineButton->color(FL_WHITE);
     }
     else if (sender == bringToFrontButton) {
-        currentAction = Action::BRING_TO_FRONT;
+        if(canvas)
+        {
+            canvas->bringSelectedToFront();
+            canvas->redraw();
+        }    
+        currentAction = Action::NONE;
         // Don't color this button as selected (it's a one-time action)
         cerr << "Bring to front clicked" << endl;
     }
     else if (sender == sendToBackButton) {
-        currentAction = Action::SEND_TO_BACK;
+        if(canvas)
+        {
+            canvas->sendSelectedToBack();
+            canvas->redraw();
+        }
+        currentAction = Action::NONE;
         // Don't color this button as selected (it's a one-time action)
         cerr << "Send to back clicked" << endl;
     }
