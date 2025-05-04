@@ -1,5 +1,7 @@
 #include "Canvas.h"
+#include "Rectangle.h"
 #include <GL/freeglut.h>
+#include <algorithm> 
 
 Canvas::Canvas(int x, int y, int w, int h) 
     : Canvas_(x, y, w, h), 
@@ -99,7 +101,7 @@ void Canvas::deleteSelected() {
 }
 
 void Canvas::bringSelectedToFront() {
-    if (selectedShape && shapes.size() > 1) {
+    if (selectedShape && !shapes.empty()) {
         // Find the selected shape
         auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
         if (it != shapes.end()) {
@@ -116,7 +118,7 @@ void Canvas::bringSelectedToFront() {
 }
 
 void Canvas::sendSelectedToBack() {
-    if (selectedShape && shapes.size() > 1) {
+    if (selectedShape && !shapes.empty()) {
         // Find the selected shape
         auto it = std::find(shapes.begin(), shapes.end(), selectedShape);
         if (it != shapes.end()) {
@@ -136,6 +138,7 @@ void Canvas::clear() {
     shapes.clear();
     selectedShape = nullptr;
     currentScribble = nullptr;
+    redraw();
 }
 
 void Canvas::render() {

@@ -2,7 +2,10 @@
 #define TOOLBAR_H
 
 #include <bobcat_ui/all.h>
+#include "Canvas.h"
 #include "ToolType.h"
+
+class Canvas;
 
 class Toolbar : public bobcat::Group {
     bobcat::Button* brushButton;
@@ -24,12 +27,15 @@ class Toolbar : public bobcat::Group {
     void onClick(bobcat::Widget* sender);
 
 public:
-    Toolbar(int x, int y, int w, int h);
+    Toolbar(int x, int y, int w, int h, Canvas* canvas);
     
     // Get current tool and action
     ToolType getTool() const;
     Action getAction() const;
     void resetAction(); // Reset action after it's been processed
+
+private:
+    Canvas* canvas;
 };
 
 #endif // TOOLBAR_H 
