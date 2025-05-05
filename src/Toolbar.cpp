@@ -267,6 +267,7 @@ void Toolbar::deselectAllTools() {
 
 ToolType Toolbar::getTool() const {
     return currentTool;
+    
 }
 
 Action Toolbar::getAction() const {
@@ -275,7 +276,7 @@ Action Toolbar::getAction() const {
 
 void Toolbar::resetAction() {
     if (currentAction != Action::NONE) {
-        cerr << "Resetting toolbar action" << endl;
+        cerr << "Resetting toolbar action " << endl;
         currentAction = Action::NONE;
     }
 }
